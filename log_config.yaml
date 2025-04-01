@@ -1,0 +1,16 @@
+version: 1
+disable_existing_loggers: False
+
+loggers:
+  hcc:
+    level: NOTSET
+    handlers: []
+    propagate: yes
+  hcc.request:
+    level: NOTSET
+    handlers: []
+    propagate: yes
+  hcc.retry:
+    level: NOTSET
+    handlers: []
+    propagate: yes
