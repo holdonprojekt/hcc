@@ -10,18 +10,17 @@ license = "GPL-3.0-or-later"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "mypy>=1.15.0",
     "pyyaml>=6.0.2",
     "requests>=2.32.3",
 ]
 
 [dependency-groups]
 dev = [
+    "mypy>=1.15.0",
+    "pip>=25.0.1",  # Needed for mypy --install-types
     "pytest>=8.3.5",
     "pytest-cov>=6.0.0",
     "ruff>=0.11.2",
-    "types-pyyaml>=6.0.12.20250326",
-    "types-requests>=2.32.0.20250328",
 ]
 
 [tool.pytest.ini_options]
