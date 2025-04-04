@@ -3,8 +3,7 @@
 This package provides the Channel class for making HTTP requests with retry functionality.
 """
 
-import logging.config
-import yaml
+import logging
 
 from .channel import Channel
 from .single_request import get, post, put, delete, patch
@@ -27,10 +26,8 @@ __all__ = [
 
 
 def initialize_logging():
-    """Initialize logging using the configuration file."""
-    with open("log_config.yaml", "r", encoding="utf-8") as file:
-        config = yaml.safe_load(file)
-        logging.config.dictConfig(config)
+    """Initialize logging for the hcc package."""
+    logging.getLogger("hcc").addHandler(logging.NullHandler())
 
 
 initialize_logging()
