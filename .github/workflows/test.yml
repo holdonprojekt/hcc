@@ -1,0 +1,48 @@
+name: Test, lint and format
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+              version: "0.6.9"
+
+      - name: Python format
+        run: uvx ruff format --diff --target-version=py313 .
+
+      - name: Python lint
+        run: uvx ruff check --target-version=py313 -v .
+
+      - name: Python type check
+        run: uv run mypy hcc/ --install-types --non-interactive
+
+      - name: Validate project metadata
+        run: uvx --from 'validate-pyproject[all,store]' validate-pyproject pyproject.toml
+
+      - name: Run tests
+        run: uv run pytest
+
+      - name: Check test coverage
+        run: uvx coverage report --fail-under=100
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-results
+          path: htmlcov
+        if: ${{ always() }}
