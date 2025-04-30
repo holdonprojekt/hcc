@@ -5,11 +5,19 @@ The Channel class provides methods for sending HTTP requests (GET, POST, PUT, DE
 and automatically retries requests in case of failure, based on a configurable retry policy.
 """
 
-from typing import Callable, Optional, Dict
+from typing import Any, Callable, Optional, Dict
 import logging
 import requests
 from .retry import retry_function, RetryPolicy
 from .custom_data_types import DataType, JsonType, HeaderType
+from .exceptions import (
+    ConnectTimeout,
+    RequestError,
+    JSONDecodeError,
+    ReadTimeout,
+    RequestException,
+    UnknownRequestException,
+)
 
 
 logger = logging.getLogger("hcc.request")
@@ -101,7 +109,8 @@ class Channel:
             headers,
         )
         response = retry_function(
-            func=lambda: requests.get(
+            func=lambda: self._make_request(
+                "get",
                 self.url,
                 timeout=self.timeout,
                 params=params,
@@ -153,7 +162,8 @@ class Channel:
             headers,
         )
         response = retry_function(
-            func=lambda: requests.post(
+            func=lambda: self._make_request(
+                "post",
                 self.url,
                 timeout=self.timeout,
                 data=data,
@@ -206,7 +216,8 @@ class Channel:
             headers,
         )
         response = retry_function(
-            func=lambda: requests.put(
+            func=lambda: self._make_request(
+                "put",
                 self.url,
                 timeout=self.timeout,
                 data=data,
@@ -245,7 +256,8 @@ class Channel:
             headers,
         )
         response = retry_function(
-            func=lambda: requests.delete(
+            func=lambda: self._make_request(
+                "delete",
                 self.url,
                 timeout=self.timeout,
                 headers=headers,
@@ -296,7 +308,8 @@ class Channel:
             headers,
         )
         response = retry_function(
-            func=lambda: requests.patch(
+            func=lambda: self._make_request(
+                "patch",
                 self.url,
                 timeout=self.timeout,
                 data=data,
@@ -310,3 +323,53 @@ class Channel:
         )
         logger.info("PATCH response: %s", response)
         return response
+
+    def _make_request(self, method: str, url: str, **kwargs: Any) -> requests.Response:
+        """The _make_request private method sends a request and transforms exceptions if necessary.
+
+        In `request` 2.32.3 the following exceptions are exported from the package.
+        Their mapping is the following:
+        - `ConnectionError`: is not mapped because it's a superclass of `ConnectTimeout`
+            (and some not exported exceptions)
+        - `ConnectTimeout`: mapped to `hcc.ConnectTimeout`
+        - `FileModeWarning`: mapped to `hcc.RequestError`
+        - `HTTPError`: mapped to `hcc.RequestError`
+        - `JSONDecodeError`: mapped to `hcc.JSONDecodeError`
+        - `ReadTimeout`: mapped to `hcc.ReadTimeout`
+        - `RequestException`: mapped to `hcc.RequestException` (and put last because it's
+            a superclass of all of `requests` package's exceptions)
+        - `Timeout`: is not mapped because it's an ancestor class of `ConnectTimeout` and
+            `ReadTimeout`
+        - `TooManyRedirects`: mapped to `hcc.RequestError`
+        - `URLRequired`: is not mapped because it's not used anymore
+            (see: https://github.com/psf/requests/issues/6877)
+
+        Args:
+            method: The HTTP method to be used (GET, POST, PUT, DELETE, PATCH).
+            url: The URL to which the requests will be sent.
+            **kwargs: Additional arguments for the request, such as timeout, data, json, headers.
+
+        Returns:
+            The HTTP response from the request.
+
+        Raises:
+            Exception: If the request fails.
+        """
+        try:
+            return requests.request(method, url, **kwargs)  # pylint: disable=missing-timeout
+        except requests.ConnectTimeout as e:
+            raise ConnectTimeout from e
+        except (
+            requests.FileModeWarning,
+            requests.HTTPError,
+            requests.TooManyRedirects,
+        ) as e:
+            raise RequestError from e
+        except requests.JSONDecodeError as e:
+            raise JSONDecodeError from e
+        except requests.ReadTimeout as e:
+            raise ReadTimeout from e
+        except requests.RequestException as e:
+            raise RequestException from e
+        except Exception as e:
+            raise UnknownRequestException from e
