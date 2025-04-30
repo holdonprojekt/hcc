@@ -14,7 +14,7 @@ def run_test(
     side_effects: List[Mock],
     data: Optional[DataType] = None,
 ):
-    with patch(f"hcc.channel.requests.{method}") as mock_method:
+    with patch("hcc.channel.requests.request") as mock_method:
         mock_method.side_effect = side_effects
         channel = Channel(url=url, max_retry_count=MAX_RETRY_COUNT)
         method_to_call = getattr(channel, method)
