@@ -33,7 +33,10 @@ class TestLogRetry(TestCase):
                 max_retry_count=5,
             )
 
-            expected_log = "WARNING:hcc.retry:Attempt 1/5 failed with exception: Error"
+            expected_log = (
+                "WARNING:hcc.retry:Attempt 1/5 failed with exception: "
+                "exception: Exception('Error') (aka: builtins.Exception), context: None"
+            )
             self.assertEqual(len(context.output), 2)
             self.assertEqual(context.output[0], expected_log)
 

@@ -11,6 +11,7 @@ import logging
 import math
 import time
 import random
+import traceback
 
 logger = logging.getLogger("hcc.retry")
 
@@ -64,18 +65,30 @@ def retry_function(
             result = func()
         except Exception as e:  # pylint: disable=broad-exception-caught
             if attempt == _max_retry_count:
+                logger.debug(
+                    "Attempt %d/%d returning with exception: %s",
+                    attempt,
+                    _max_retry_count,
+                    convert_exception_to_detailed_string(e),
+                )
                 logger.warning(
                     "Attempt %d/%d returning with exception: %s",
                     attempt,
                     _max_retry_count,
-                    str(e),
+                    convert_exception_to_string(e),
                 )
                 raise e
+            logger.debug(
+                "Attempt %d/%d failed with exception: %s",
+                attempt,
+                _max_retry_count,
+                convert_exception_to_detailed_string(e),
+            )
             logger.warning(
                 "Attempt %d/%d failed with exception: %s",
                 attempt,
                 _max_retry_count,
-                str(e),
+                convert_exception_to_string(e),
             )
         else:
             if attempt == _max_retry_count:
@@ -107,3 +120,38 @@ def retry_function(
                 time.sleep(_base_delay_in_seconds)
             elif retry_policy == RetryPolicy.JITTER:
                 time.sleep(_base_delay_in_seconds * random.uniform(0.5, 1.5))
+
+
+def convert_exception_to_string(e: Exception):
+    """Creates a human readable description of an exception.
+
+    Args:
+        e: The exception from which the decription is created.
+
+    Returns:
+        A string containing the name of the exception class (in two formats)
+        and a readable context.
+    """
+    return (
+        f"exception: {repr(e)} "
+        f"(aka: {e.__class__.__module__ + '.' + e.__class__.__name__}), "
+        f"context: {e.__context__}"
+    )
+
+
+def convert_exception_to_detailed_string(e: Exception):
+    """Creates a human readable description of an exception.
+
+    Args:
+        e: The exception from which the decription is created.
+
+    Returns:
+        A string containing available informations such as stactrace, context,
+        local variables etc on every exception that occured in that chain.
+    """
+    traceback_exception = traceback.TracebackException.from_exception(
+        e,
+        capture_locals=True,
+    )
+
+    return "".join(traceback_exception.format(chain=True))
