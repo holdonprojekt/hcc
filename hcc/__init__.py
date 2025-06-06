@@ -6,7 +6,7 @@ This package provides the Channel class for making HTTP requests with retry func
 import logging
 
 from .channel import Channel
-from .single_request import get, post, put, delete, patch
+from .single_request import get, post, put, delete, patch, request
 from .retry import retry_function, RetryPolicy
 from .custom_data_types import DataType, JsonType, HeaderType
 from .exceptions import (
@@ -26,6 +26,7 @@ __all__ = [
     "put",
     "delete",
     "patch",
+    "request",
     "retry_function",
     "RetryPolicy",
     "DataType",
