@@ -1,6 +1,6 @@
 [project]
 name = "hcc"
-version = "0.2.0"
+version = "0.4.0"
 description = "A lightweight Python package for making HTTP requests with retry functionality"
 authors = [
     { name = "Tamás Csertán", email = "tamas.csertan@holdonprojekt.hu" },
