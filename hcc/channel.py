@@ -324,6 +324,45 @@ class Channel:
         logger.info("PATCH response: %s", response)
         return response
 
+    def request(
+        self,
+        *,
+        method: str,
+        params: Optional[Dict[str, str]] = None,
+        data: Optional[DataType] = None,
+        json: Optional[JsonType] = None,
+        headers: Optional[HeaderType] = None,
+    ) -> requests.Response:
+        """The request method sends a request with the specified method.
+
+        Args:
+            method: The HTTP method to be used (GET, POST, PUT, DELETE, PATCH).
+            params: The query parameters for the request (default is an empty dictionary).
+            data: The data to be sent in the body of the request (default is None).
+                Either this or `json` should be provided.
+            json: The JSON data to be sent in the body of the request (default is None).
+                Either this or `data` should be provided.
+            headers: The headers for the request (default is an empty dictionary).
+
+        Returns:
+            The HTTP response from the first successful or last request.
+
+        Raises:
+            Exception: If the maximum retry count is reached and the request still fails.
+        """
+        method = method.upper()
+        if method == "GET":
+            return self.get(params=params, headers=headers)
+        if method == "POST":
+            return self.post(data=data, json=json, headers=headers)
+        if method == "PUT":
+            return self.put(data=data, json=json, headers=headers)
+        if method == "DELETE":
+            return self.delete(headers=headers)
+        if method == "PATCH":
+            return self.patch(data=data, json=json, headers=headers)
+        raise ValueError(f"Unsupported method: {method}")
+
     def _make_request(self, method: str, url: str, **kwargs: Any) -> requests.Response:
         """The _make_request private method sends a request and transforms exceptions if necessary.
 
