@@ -146,9 +146,9 @@ class Channel:
         Raises:
             Exception: If the maximum retry count is reached and the request still fails.
         """
-        assert data is not None or json is not None, (
-            "Either data or json must be provided"
-        )
+        assert (
+            data is not None or json is not None
+        ), "Either data or json must be provided"
         assert data is None or json is None, "Only one of data or json can be provided"
         if json:
             data = None
@@ -200,9 +200,9 @@ class Channel:
         Raises:
             Exception: If the maximum retry count is reached and the request still fails.
         """
-        assert data is not None or json is not None, (
-            "Either data or json must be provided"
-        )
+        assert (
+            data is not None or json is not None
+        ), "Either data or json must be provided"
         assert data is None or json is None, "Only one of data or json can be provided"
         if json:
             data = None
@@ -292,9 +292,9 @@ class Channel:
         Raises:
             Exception: If the maximum retry count is reached and the request still fails.
         """
-        assert data is not None or json is not None, (
-            "Either data or json must be provided"
-        )
+        assert (
+            data is not None or json is not None
+        ), "Either data or json must be provided"
         assert data is None or json is None, "Only one of data or json can be provided"
         if json:
             data = None
@@ -395,7 +395,9 @@ class Channel:
             Exception: If the request fails.
         """
         try:
-            return requests.request(method, url, **kwargs)  # pylint: disable=missing-timeout
+            return requests.request(
+                method, url, **kwargs
+            )  # pylint: disable=missing-timeout
         except requests.ConnectTimeout as e:
             raise ConnectTimeout from e
         except (
