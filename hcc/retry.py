@@ -7,6 +7,7 @@ maximum retry count is reached.
 
 from enum import Enum
 from typing import Callable, Any, Optional
+from requests import Response
 import logging
 import math
 import time
@@ -32,12 +33,12 @@ class RetryPolicy(Enum):
 
 
 def retry_function(
-    func: Callable[[], Any],
+    func: Callable[[], Response],
     is_retry_needed: Callable[[Any], bool],
     max_retry_count: Optional[int] = None,
     retry_policy: Optional[RetryPolicy] = RetryPolicy.LINEAR,
     base_delay: Optional[int] = 200,
-) -> Any:
+) -> Response:
     """Retry a function with different policies.
 
     Args:
@@ -122,7 +123,7 @@ def retry_function(
                 time.sleep(_base_delay_in_seconds * random.uniform(0.5, 1.5))
 
 
-def convert_exception_to_string(e: Exception):
+def convert_exception_to_string(e: Exception) -> str:
     """Creates a human readable description of an exception.
 
     Args:
@@ -139,7 +140,7 @@ def convert_exception_to_string(e: Exception):
     )
 
 
-def convert_exception_to_detailed_string(e: Exception):
+def convert_exception_to_detailed_string(e: Exception) -> str:
     """Creates a human readable description of an exception.
 
     Args:

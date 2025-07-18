@@ -42,7 +42,7 @@ __all__ = [
 ]
 
 
-def initialize_logging():
+def initialize_logging() -> None:
     """Initialize logging for the hcc package."""
     logging.getLogger("hcc").addHandler(logging.NullHandler())
 

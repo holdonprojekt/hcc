@@ -1,6 +1,6 @@
 [project]
 name = "hcc"
-version = "0.4.0"
+version = "0.5.0"
 description = "A lightweight Python package for making HTTP requests with retry functionality"
 authors = [
     { name = "Tamás Csertán", email = "tamas.csertan@holdonprojekt.hu" },
@@ -21,6 +21,21 @@ dev = [
     "pytest-cov>=6.0.0",
     "ruff>=0.11.2",
 ]
+
+# Type checking configuration
+[tool.mypy]
+python_version = "3.13"
+follow_imports = "normal"
+follow_imports_for_stubs = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+check_untyped_defs = true
+disallow_untyped_calls = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+warn_return_any = true
 
 [tool.pytest.ini_options]
 addopts = "tests --cov=hcc --cov-report=html -v"
